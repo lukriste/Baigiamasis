@@ -1,0 +1,2 @@
+Įkėlus lentelę excel, ją tvarkiau, tuščios reiksmes nepildziau, nes kai perkeli i mysql uzsipildo null, sutvarkiau stulpelius su visokiais simboliai
+išfiltravus GNM konfliktas kas ir bus mano y , pamačiau kad visos reikšmės yra unikalios, sugalvojau kad padarysiu nauja stulpeli ir sukursiu grupes
