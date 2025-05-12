@@ -1,0 +1,173 @@
+Įkėlus lentelę excel, ją tvarkiau, tuščios reiksmes nepildziau, nes kai perkeli i mysql uzsipildo null, 
+sutvarkiau stulpelius su visokiais simboliai
+Išfiltravus GNM konfliktas kas ir bus mano y , 
+pamačiau kad visos reikšmės yra unikalios, sugalvojau kad padarysiu nauja stulpeli ir sukursiu grupes, 
+padarius grupiu pasiskirstymas buvo toks kaip pavaizduota grafike 1(konfliktu-pasiskirstymas)
+Nusistaciau X kaip zmogaus ivestas tekstas pvz.: "skauda gerkle", o y kad paduotu atsakyma is konflikto grupes
+
+Pasiimu bandymui modeli 1. TF-IDF (Term Frequency - Inverse Document Frequency)
+Tai yra metodas, kuris tekstą paverčia skaičių vektoriumi, kurį jau galima naudoti modeliui.
+
+👉 Pavyzdys:
+Tarkime, turi šiuos simptomus:
+
+„skausmas gerklėje“
+
+„skausmas nugaroje“
+
+„negalėjimas kalbėti“
+
+TF-IDF vektorizatorius:
+Pasiima visus žodžius (terminus) iš tekstų.
+
+Kiekvienam žodžiui apskaičiuoja:
+
+TF – kiek kartų žodis pasitaiko dokumente.
+
+IDF – kiek retas tas žodis visoje kolekcijoje.
+
+💡 Žodžiai, kurie dažni viename tekste, bet reti visame rinkinyje (pvz., „gerklėje“), gaus aukštesnį svorį. Tokie žodžiai laikomi informatyviais.
+
+🎲 2. Naive Bayes klasifikatorius
+Tai paprastas, bet dažnai efektyvus modelis tekstui.
+
+Veikia remiantis Bayeso teorema:
+Jis skaičiuoja:
+
+Kokia tikimybė, kad tekstas priklauso klasei Y, žinant žodžius X
+
+Formaliai:
+
+less
+Copy
+Edit
+P(klasė | žodžiai) ∝ P(žodžiai | klasė) * P(klasė)
+„Naive“ dalis:
+Modelis daro labai stiprų supaprastinimą – tarkime, kad visi žodžiai nepriklausomi vienas nuo kito, t.y. nežino gramatikos, konteksto.
+
+🧪 Kodėl šis derinys geras?
+✅ Greitas: labai greitai treniruojamas net su tūkstančiais pavyzdžių.
+
+✅ Tinka trumpam tekstui: simptomai ar trumpos frazės.
+
+✅ Lengvai interpretuojamas.
+
+⚠️ Kada jis ribotas?
+❌ Neapdoroja žodžių tvarkos ar sakinių struktūros.
+
+❌ Netinka jei klasės labai nesubalansuotos (kaip tavo atveju).
+
+❌ Nesupranta sinonimų ar semantikos – pvz. „skausmas“ ir „diskomfortas“ jam skirtingi.
+
+Darau modeli pirmaji  (TF-IDF + Naive Bayes)  Modelio tikslumą gaunu 0,25 (tai matyt dėl to kad yra daug skirtingu klasiu),
+kai kurios klase nebuvo prognozuotos (modelis ne karto ju neparinko). Todėl neįmanoma apskaičiuoti precision / recall / f1-score – gaunama 0
+
+Išsiskyrimo konfliktas       0.38      0.70      0.49        20
+
+Metricas	Reikšmė	Paaiškinimas
+precision	0.38	Tik 38% prognozių, kur modelis sakė „Išsiskyrimo konfliktas“, buvo teisingos
+recall	0.70	Modelis teisingai „pagavo“ 70% visų tikrų „Išsiskyrimo konfliktas“ įrašų
+f1-score	0.49	Balansas tarp precision ir recall (vidutinė kokybė)
+support	20	Testavimo duomenyse buvo 20 įrašų šiai grupei
+
+bandau paleisti dar karta, pasalindama Stop word
+
+gaunu dar mazesni, Modelio tikslumas: 0.2391304347826087
+
+Imu kita modeli: TF-IDF + Random Forest
+
+1. TF-IDF (Term Frequency – Inverse Document Frequency)
+Tai metodas, kuris konvertuoja tekstą į skaitinę formą (vektorus), kad kompiuteris galėtų jį „suprasti“. Jis veikia taip:
+
+Term Frequency (TF): Kiek kartų žodis pasirodo dokumente.
+
+Inverse Document Frequency (IDF): Kiek retas tas žodis visame korpuse.
+
+Šitaip TF-IDF pabrėžia unikalius žodžius, kurie yra svarbesni konkrečiam tekstui, o dažni žodžiai kaip „ir“, „kad“, „aš“ ignoruojami.
+
+🔹 2. Random Forest Classifier
+Tai mašininio mokymosi algoritmas, kuris:
+
+Sukuria daug skirtingų sprendimų medžių (angl. decision trees),
+
+Kiekvienas medis balsuoja už savo sprendimą (pvz., konfliktų grupę),
+
+Galutinis sprendimas priimamas daugumos balsavimu.
+
+Privalumai:
+
+Atsparus triukšmui (t.y. netvarkingiems duomenims),
+
+Gerai tvarkosi su nesubalansuotais duomenimis,
+
+Gana tikslus net ir be daug parametrų.
+
+🧠 Kodėl TF-IDF + Random Forest?
+TF-IDF leidžia naudoti natūralų tekstą be rankinio žodžių žymėjimo.
+
+Random Forest gerai apdoroja skaitinius duomenis iš TF-IDF ir yra nelabai jautrus netolygiems duomenų pasiskirstymams.
+
+Rezultatai geresni, bet aš ne tokių noriu:
+
+Modelio tikslumas: 0.29347826086956524
+
+  precision    recall  f1-score   support
+
+           Atakos / apsaugos konfliktas       1.00      0.33      0.50         3
+                      Bėglio konfliktas       0.00      0.00      0.00         1
+         Gijimo fazės / gijimo procesai       1.00      0.17      0.29         6
+                 Išsiskyrimo konfliktas       0.44      0.35      0.39        20
+                                   Kiti       0.08      0.09      0.09        11
+                 Kombinuotas konfliktas       0.00      0.00      0.00         2
+           Kvapo / jutiminis konfliktas       0.00      0.00      0.00         2
+               Kūno 'kąsnio' konfliktas       0.21      0.30      0.25        10
+              Mirties baimės konfliktas       0.67      0.29      0.40         7
+                   Motorinis konfliktas       0.00      0.00      0.00         1
+       Savigarbos sumažėjimo konfliktas       0.26      0.73      0.39        15
+                 Seksualinis konfliktas       0.00      0.00      0.00         2
+Sensorinis / regos / klausos konfliktas       0.00      0.00      0.00         7
+ Streso / greičio / spaudimo konfliktas       0.00      0.00      0.00         1
+           Šeimos / santykių konfliktas       0.33      0.25      0.29         4
+
+                               accuracy                           0.29        92
+                              macro avg       0.27      0.17      0.17        92
+                           weighted avg       0.33      0.29      0.26        92
+
+
+Prognozuojamas konfliktas: Savigarbos sumažėjimo konfliktas
+
+kadangi neenkina nei rezultatai, bet ir pati esme mano darbo ne tokia, as noriu kad žmogus ivedes ne tai kad gautu konflikto pavadinima,
+ o didesni aprasyma ir interpretacija kur galima butu konkreciau paziureti i savo gyvenima, kad vienokio ar kitokio simptomo neliktu.
+
+Todel bandau LLM, kadangi transformers netinka su mano python 3.12 versija, tai darau 65 bandyma su google colab
+bandziau modeli T5-small
+
+Pradzioje visai negeneravo ismetamo teksto, duomenu kol kas naudojau tik 100 eiluciu tai manau stipriai per mazai,
+ bet norejau isbandyti ar is viso veikia.
+
+Po bandymo su 100 epochu
+
+Train loss: nuo 5.82 → iki 1.38
+
+Val loss: nuo 4.57 → iki 1.84
+
+Abu stabiliai mažėjo ir pasiekė žemą reikšmę, o pabaigoje nebuvo stipraus šokinėjimo.
+
+Isbandziau kelias ivestis: simptomas: insultas. žmogų ištiko insultas po skyrybų.
+Atsakymas : Integritas mog itiko itiko itiko insultas po skyryb. Tai gali bti susij su emocin insultas.
+Atsakymas: Atlas emocinio itiko insultas pokyiai itiko itiko insultas. Tai svario konflikto dl tai susij su 'bjas' ypa svarvaro kaip - kai mog  'bja' insultas.
+Atsakymas:  Sugeneruota išvestis: mog itiko insultas po skyryb mog itiko insultas. Tai insultas - tai mog itiko gijimo faz po mog.
+mog itiko insultas po skyryb mog itiko insultas. Tai insultas - tai mog itiko gijimo faz po mog.
+
+Kad sumazintu pasikartojimus output_ids pridedu repetition_penalty=2.5 
+Atsakymas: mog itiko insultas po skyrybimu. Tai insultacimou svarvard interesu,
+ kad fresco gali bti susij su nenoru pasireikio danikumo konflikto del reakcija innovativistu!
+
+ Suprantu kad negeneruoja lietuvisku raidziu atsakymuose, keiciu modeli i mt5-small
+
+ pakeitus generuoja:
+Įvestis: Simptomas: skausmas nugaroje.
+Situacija: Vyras patiria ilgalaikę įtampą darbe
+Klausimas: Paaiškink pagal GNM.
+Išvestis: <extra_id_0>NM.reiškia susisą su GNM tai paios ar būt u atsimuisti po, galiti
+<extra_id_0>NM.reiškia susisą su GNM tai paios ar būt u atsimuisti po, galiti
